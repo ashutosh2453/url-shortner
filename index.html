@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShortLink | Shorten, Track and Analyze Your Links</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="ShortLink is a modern, responsive URL shortener with a comprehensive real-time analytics dashboard, QR code generator, and link management tools.">
+  <meta name="keywords" content="URL shortener, analytics dashboard, QR code, short links, branded links, SaaS link manager">
+  <meta name="author" content="ShortLink Team">
+  
+  <!-- Favicon (Fallback) -->
+  <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔗</text></svg>">
+  
+  <!-- Google Fonts: Inter (400, 500, 600, 700, 800) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Google Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  
+  <!-- Chart.js CDN for beautiful interactive charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Global Application Wrapper -->
+  <div id="appWrapper">
+    
+    <!-- ==========================================================================
+         LOGGED-OUT LAYOUT (LANDING, LOGIN, REGISTER)
+         ========================================================================== -->
+    <div id="loggedOutLayout" style="display: none;">
+      
+      <!-- Sticky Navigation Header -->
+      <header class="nav-header">
+        <div class="nav-container">
+          <a href="#/" class="brand-logo">
+            <!-- SVG Icon representing a shortened path -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            <span>ShortLink</span>
+          </a>
+          
+          <div class="nav-links">
+            <a href="#/" class="nav-link-item active" data-hash="#/">Features</a>
+            <a href="#/" class="nav-link-item" data-hash="#/">Pricing</a>
+            <a href="#/" class="nav-link-item" data-hash="#/">About</a>
+          </div>
+          
+          <div class="nav-actions">
+            <a href="#/login" class="btn btn-secondary">Log In</a>
+            <a href="#/register" class="btn btn-primary">Get Started</a>
+          </div>
+        </div>
+      </header>
+
+      <!-- Logged-Out Views Container -->
+      <main>
+        
+        <!-- 1. LANDING VIEW -->
+        <div id="viewLanding" class="view-container landing-view">
+          <!-- Hero Section -->
+          <section class="hero-section">
+            <div class="container flex flex-col items-center">
+              <h1 class="display-lg text-center font-bold">
+                Shorten, Track and <span class="text-primary">Analyze</span> Your Links
+              </h1>
+              <p class="body-lg text-center text-muted hero-subtitle">
+                Transform long, complex URLs into powerful marketing assets. Track every click in real-time and understand your audience like never before.
+              </p>
+              
+              <!-- Quick Shortener Bar -->
+              <div class="shortener-bar">
+                <span class="material-symbols-outlined shortener-bar-icon">link</span>
+                <input type="url" id="quickUrlInput" placeholder="Paste your long URL here..." required>
+                <button type="button" class="btn btn-primary btn-lg" id="quickShortenBtn">Shorten</button>
+              </div>
+              
+              <div class="hero-trust-tag label-sm">
+                Join 500,000+ creators and brands simplifying their links.
+              </div>
+            </div>
+          </section>
+
+          <!-- Feature Cards Section -->
+          <section class="features-section">
+            <div class="container">
+              <div class="section-header">
+                <h2 class="headline-md">Powerful Features for Modern Teams</h2>
+                <p class="body-md">Built with precision to handle scale while providing the insights you need to grow your digital presence.</p>
+              </div>
+              
+              <div class="grid grid-cols-3 gap-3">
+                <!-- Card 1 -->
+                <div class="card feature-card">
+                  <div class="icon-box">
+                    <span class="material-symbols-outlined">bolt</span>
+                  </div>
+                  <h3 class="title-md">Fast Redirects</h3>
+                  <p class="body-md text-muted">
+                    Our global edge network ensures your links redirect in milliseconds, keeping your users engaged and reducing drop-off.
+                  </p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="card feature-card">
+                  <div class="icon-box">
+                    <span class="material-symbols-outlined">insights</span>
+                  </div>
+                  <h3 class="title-md">Detailed Analytics</h3>
+                  <p class="body-md text-muted">
+                    Get deep insights into click-through rates, geographic data, and device types with our intuitive real-time dashboard.
+                  </p>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="card feature-card">
+                  <div class="icon-box">
+                    <span class="material-symbols-outlined">verified</span>
+                  </div>
+                  <h3 class="title-md">Branded Links</h3>
+                  <p class="body-md text-muted">
+                    Increase trust and brand recognition by using your own custom domain for all your shortened links.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Statistics banner -->
+          <section class="stats-banner">
+            <div class="container">
+              <div class="stats-banner-grid">
+                <div>
+                  <div class="stats-number">1M+</div>
+                  <div class="stats-label">Links Created</div>
+                </div>
+                <div>
+                  <div class="stats-number">10M+</div>
+                  <div class="stats-label">Clicks Tracked</div>
+                </div>
+                <div>
+                  <div class="stats-number">500k+</div>
+                  <div class="stats-label">Happy Users</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- CTA Banner -->
+          <section class="cta-section">
+            <div class="container">
+              <div class="cta-box">
+                <h2 class="headline-md">Ready to scale your influence?</h2>
+                <p class="body-lg">Join thousands of professionals who use ShortLink to optimize their digital presence. Start for free today.</p>
+                <div class="cta-buttons">
+                  <a href="#/register" class="btn btn-primary btn-lg">Get Started for Free</a>
+                  <a href="#/" class="btn btn-secondary btn-lg">Contact Sales</a>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 2. LOGIN VIEW -->
+        <div id="viewLogin" class="view-container auth-view">
+          <div class="auth-card">
+            <div class="auth-header">
+              <span class="brand-logo justify-center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span>ShortLink</span>
+              </span>
+              <h2 class="font-bold">Welcome Back</h2>
+              <p>Sign in to manage your shortened links</p>
+            </div>
+            
+            <form class="auth-form" id="loginForm">
+              <div class="form-group">
+                <label for="loginEmail" class="form-label">Email Address</label>
+                <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" required>
+              </div>
+              <div class="form-group">
+                <label for="loginPassword" class="form-label">Password</label>
+                <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+              </div>
+              <div class="flex items-center justify-between">
+                <label class="checkbox-container">
+                  <input type="checkbox" id="loginRememberMe">
+                  <span>Remember me</span>
+                </label>
+                <a href="#/login" class="btn-link label-sm" id="forgotPasswordLink">Forgot password?</a>
+              </div>
+              <button type="submit" class="btn btn-primary btn-lg mt-2">Log In</button>
+            </form>
+            
+            <div class="auth-footer">
+              Don't have an account? <a href="#/register" class="btn-link font-semibold">Sign Up</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. REGISTER VIEW -->
+        <div id="viewRegister" class="view-container auth-view">
+          <div class="auth-card">
+            <div class="auth-header">
+              <span class="brand-logo justify-center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span>ShortLink</span>
+              </span>
+              <h2 class="font-bold">Create Account</h2>
+              <p>Start shortening and tracking today</p>
+            </div>
+            
+            <form class="auth-form" id="registerForm">
+              <div class="form-group">
+                <label for="registerName" class="form-label">Full Name</label>
+                <input type="text" id="registerName" class="form-input" placeholder="John Doe" required>
+              </div>
+              <div class="form-group">
+                <label for="registerEmail" class="form-label">Email Address</label>
+                <input type="email" id="registerEmail" class="form-input" placeholder="you@example.com" required>
+              </div>
+              <div class="form-group">
+                <label for="registerPassword" class="form-label">Password</label>
+                <input type="password" id="registerPassword" class="form-input" placeholder="Min. 8 characters" required minlength="8">
+              </div>
+              <div class="form-group">
+                <label for="registerConfirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" id="registerConfirmPassword" class="form-input" placeholder="Re-enter password" required minlength="8">
+              </div>
+              <button type="submit" class="btn btn-primary btn-lg mt-2">Sign Up</button>
+            </form>
+            
+            <div class="auth-footer">
+              Already have an account? <a href="#/login" class="btn-link font-semibold">Log In</a>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <!-- Landing Page Footer -->
+      <footer class="main-footer">
+        <div class="container">
+          <div class="footer-grid">
+            <div class="footer-brand">
+              <div class="brand-logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span>ShortLink</span>
+              </div>
+              <p>Making the web more accessible, one link at a time.</p>
+            </div>
+            
+            <div class="footer-links">
+              <h4>Product</h4>
+              <ul>
+                <li><a href="#/">Features</a></li>
+                <li><a href="#/">Integrations</a></li>
+                <li><a href="#/">Enterprise</a></li>
+              </ul>
+            </div>
+            
+            <div class="footer-links">
+              <h4>Resources</h4>
+              <ul>
+                <li><a href="#/">Security</a></li>
+                <li><a href="#/">Status</a></li>
+                <li><a href="#/">Blog</a></li>
+              </ul>
+            </div>
+            
+            <div class="footer-links">
+              <h4>Legal</h4>
+              <ul>
+                <li><a href="#/">Privacy Policy</a></li>
+                <li><a href="#/">Terms of Service</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="footer-bottom">
+            <p>© 2026 ShortLink. All rights reserved.</p>
+            <div class="footer-socials">
+              <a href="#/" aria-label="Language"><span class="material-symbols-outlined">language</span></a>
+              <a href="#/" aria-label="Share"><span class="material-symbols-outlined">share</span></a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+
+    <!-- ==========================================================================
+         LOGGED-IN LAYOUT (DASHBOARD AREA)
+         ========================================================================== -->
+    <div id="loggedInLayout" class="dashboard-layout" style="display: none;">
+      
+      <!-- Responsive Sidebar -->
+      <aside class="sidebar" id="dashboardSidebar">
+        <div class="sidebar-logo">
+          <a href="#/dashboard" class="brand-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            <span>ShortLink</span>
+          </a>
+        </div>
+        
+        <ul class="sidebar-menu">
+          <li>
+            <a href="#/dashboard" class="sidebar-link active" id="sb-dashboard">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#/create" class="sidebar-link" id="sb-create">
+              <span class="material-symbols-outlined">add_link</span>
+              <span>Create Link</span>
+            </a>
+          </li>
+          <li>
+            <a href="#/analytics" class="sidebar-link" id="sb-analytics">
+              <span class="material-symbols-outlined">analytics</span>
+              <span>Analytics</span>
+            </a>
+          </li>
+          <li>
+            <a href="#/settings" class="sidebar-link" id="sb-settings">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+        
+        <div class="sidebar-footer">
+          <!-- Quick logout triggers simulation -->
+          <a href="#/logout" class="sidebar-link mb-4" id="sb-logout">
+            <span class="material-symbols-outlined">logout</span>
+            <span>Logout</span>
+          </a>
+          
+          <div class="sidebar-user">
+            <div class="sidebar-avatar" id="sidebarAvatar">JS</div>
+            <div class="sidebar-user-info">
+              <span class="sidebar-username" id="sidebarUsername">John Smith</span>
+              <span class="sidebar-user-role">Free Plan</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Dashboard Dashboard Header -->
+      <header class="dashboard-header">
+        <div class="dashboard-title-area">
+          <button class="hamburger-btn" id="sidebarToggleBtn" aria-label="Toggle Sidebar">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <h2 class="dashboard-title" id="pageMainTitle">Dashboard</h2>
+        </div>
+        
+        <div class="dashboard-actions">
+          <a href="#/create" class="btn btn-primary">
+            <span class="material-symbols-outlined">add</span>
+            <span>Create Link</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Main Logged-In Content Panel -->
+      <main class="dashboard-content" id="dashboardContentPanel">
+        
+        <!-- LOADING SKELETON (renders when switching tabs) -->
+        <div id="skeletonLoader" class="skeleton-dashboard" style="display: none;">
+          <div class="grid grid-cols-4 gap-3">
+            <div class="card stat-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width: 40%"></div></div>
+            <div class="card stat-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width: 40%"></div></div>
+            <div class="card stat-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width: 40%"></div></div>
+            <div class="card stat-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width: 40%"></div></div>
+          </div>
+          <div class="card mt-4" style="height: 350px; padding: 30px;">
+            <div class="skeleton skeleton-title" style="width: 30%"></div>
+            <div class="skeleton skeleton-text" style="margin-top: 20px;"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-rect" style="margin-top: 20px; height: 100px;"></div>
+          </div>
+        </div>
+
+        <!-- 4. USER DASHBOARD VIEW -->
+        <div id="viewDashboard" class="view-container">
+          
+          <!-- Top Statistics Cards -->
+          <div class="dashboard-stats-grid">
+            <!-- Total Links -->
+            <div class="card stat-card">
+              <div class="stat-card-header">
+                <div>
+                  <div class="stat-card-title">Total Links</div>
+                  <div class="stat-card-value" id="statTotalLinks">0</div>
+                </div>
+                <div class="stat-card-icon">
+                  <span class="material-symbols-outlined">link</span>
+                </div>
+              </div>
+              <div class="stat-card-badge up">
+                <span class="material-symbols-outlined">trending_up</span>
+                <span>+12%</span>
+              </div>
+            </div>
+            
+            <!-- Total Clicks -->
+            <div class="card stat-card">
+              <div class="stat-card-header">
+                <div>
+                  <div class="stat-card-title">Total Clicks</div>
+                  <div class="stat-card-value" id="statTotalClicks">0</div>
+                </div>
+                <div class="stat-card-icon">
+                  <span class="material-symbols-outlined">ads_click</span>
+                </div>
+              </div>
+              <div class="stat-card-badge up" id="statClicksBadge">
+                <span class="material-symbols-outlined">trending_up</span>
+                <span>+8%</span>
+              </div>
+            </div>
+            
+            <!-- Active Links -->
+            <div class="card stat-card">
+              <div class="stat-card-header">
+                <div>
+                  <div class="stat-card-title">Active Links</div>
+                  <div class="stat-card-value" id="statActiveLinks">0</div>
+                </div>
+                <div class="stat-card-icon">
+                  <span class="material-symbols-outlined">verified</span>
+                </div>
+              </div>
+              <div class="stat-card-badge up">
+                <span class="material-symbols-outlined">done</span>
+                <span>100%</span>
+              </div>
+            </div>
+            
+            <!-- QR Codes Generated -->
+            <div class="card stat-card">
+              <div class="stat-card-header">
+                <div>
+                  <div class="stat-card-title">QR Codes</div>
+                  <div class="stat-card-value" id="statQrGenerated">0</div>
+                </div>
+                <div class="stat-card-icon">
+                  <span class="material-symbols-outlined">qr_code_2</span>
+                </div>
+              </div>
+              <div class="stat-card-badge up">
+                <span class="material-symbols-outlined">add</span>
+                <span>Auto</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Links Table Card -->
+          <div class="card table-card">
+            <div class="table-header">
+              <h3 class="title-md">Recent Shortened Links</h3>
+              <div class="table-search">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" id="dashboardSearch" placeholder="Search original or short URL...">
+              </div>
+            </div>
+            
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Original URL</th>
+                    <th>Short URL</th>
+                    <th>Clicks</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardLinksTableBody">
+                  <!-- Generated dynamically in JS -->
+                </tbody>
+              </table>
+              
+              <!-- Empty State Template -->
+              <div id="dashboardEmptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">
+                  <span class="material-symbols-outlined">link_off</span>
+                </div>
+                <h3>No links created yet</h3>
+                <p>Shorten your first URL to start tracking click events and analyzing visitor metrics.</p>
+                <a href="#/create" class="btn btn-primary">
+                  <span class="material-symbols-outlined">add</span>
+                  <span>Create Your First Link</span>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Simulation Assist Panel -->
+          <div class="card mt-4 flex items-center justify-between" style="padding: 16px 24px; border: 1px dashed var(--color-primary-hover); background: var(--color-primary-light);">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">info</span>
+              <p class="label-sm">
+                <strong>Click Simulation Tool:</strong> You can mock traffic to your links to test the real-time analytics graphs.
+              </p>
+            </div>
+            <button class="btn btn-primary" id="btnSimulateTraffic">Simulate Traffic (Mock Clicks)</button>
+          </div>
+        </div>
+
+        <!-- 5. CREATE NEW LINK PAGE VIEW -->
+        <div id="viewCreateLink" class="view-container">
+          <div class="card form-card">
+            <div class="form-header">
+              <h2 class="font-bold">Create New Short Link</h2>
+              <p>Shorten your destination URL and configure advanced options.</p>
+            </div>
+            
+            <form id="createLinkForm" class="auth-form">
+              <div class="form-group form-full-width">
+                <label for="createLongUrl" class="form-label">Destination URL (Long URL) *</label>
+                <input type="url" id="createLongUrl" class="form-input" placeholder="https://example.com/very/long/path/to/page?ref=campaign" required>
+              </div>
+              
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="createAlias" class="form-label">Custom Alias (Optional)</label>
+                  <input type="text" id="createAlias" class="form-input" placeholder="my-custom-name" pattern="^[a-zA-Z0-9\-_]+$">
+                  <span class="label-xs text-muted" style="text-transform: none; font-size: 0.7rem; font-weight: normal; margin-top: 2px;">Only letters, numbers, dashes, and underscores.</span>
+                </div>
+                
+                <div class="form-group">
+                  <label for="createExpiry" class="form-label">Expiration Date (Optional)</label>
+                  <input type="date" id="createExpiry" class="form-input">
+                </div>
+              </div>
+              
+              <div class="toggle-group form-full-width mt-2">
+                <div class="toggle-label-area">
+                  <span class="toggle-title">Password Protection</span>
+                  <span class="toggle-desc">Require visitors to enter a password to redirect.</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="createPasswordToggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              
+              <!-- Hidden password input container, shown when toggle is active -->
+              <div class="form-group form-full-width mt-1" id="createPasswordContainer" style="display: none;">
+                <label for="createPassword" class="form-label">Access Password</label>
+                <input type="password" id="createPassword" class="form-input" placeholder="Enter redirect password">
+              </div>
+              
+              <div class="form-buttons">
+                <button type="button" class="btn btn-secondary" id="createLinkResetBtn">Reset</button>
+                <button type="submit" class="btn btn-primary">Create Link</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- 6. ANALYTICS DASHBOARD VIEW -->
+        <div id="viewAnalytics" class="view-container">
+          <!-- Key Metrics Cards Row -->
+          <div class="dashboard-stats-grid">
+            <div class="card stat-card">
+              <div class="stat-card-title">Total Clicks</div>
+              <div class="stat-card-value" id="analyticsTotalClicks">0</div>
+              <span class="label-xs text-muted">Accumulated events</span>
+            </div>
+            
+            <div class="card stat-card">
+              <div class="stat-card-title">Unique Visitors</div>
+              <div class="stat-card-value" id="analyticsUniqueVisitors">0</div>
+              <span class="label-xs text-muted">IP filtered clicks</span>
+            </div>
+            
+            <div class="card stat-card">
+              <div class="stat-card-title">Most Popular Link</div>
+              <div class="stat-card-value" id="analyticsPopularLink" style="font-size: 1.15rem; padding-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">shrt.lnk/none</div>
+              <span class="label-xs text-muted" id="analyticsPopularClicks">0 clicks</span>
+            </div>
+            
+            <div class="card stat-card">
+              <div class="stat-card-title">Average Clicks</div>
+              <div class="stat-card-value" id="analyticsAvgClicks">0</div>
+              <span class="label-xs text-muted">Clicks per shortened link</span>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="analytics-grid">
+            <!-- Line Chart (Daily Clicks) -->
+            <div class="card chart-card flex flex-col justify-between" style="grid-column: span 2;">
+              <div class="chart-header">
+                <h3 class="chart-title">Daily Click Traffic</h3>
+                <div class="chart-legend">
+                  <div class="chart-legend-item">
+                    <span class="chart-legend-color" style="background-color: var(--color-primary);"></span>
+                    <span>Total Hits</span>
+                  </div>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="chartDailyClicks"></canvas>
+              </div>
+            </div>
+            
+            <!-- Pie Chart (Devices) -->
+            <div class="card chart-card flex flex-col justify-between">
+              <div class="chart-header">
+                <h3 class="chart-title">Traffic by Device</h3>
+              </div>
+              <div class="chart-container">
+                <canvas id="chartDeviceUsage"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Browser Bar Chart Row -->
+          <div class="analytics-grid">
+            <div class="card chart-card flex flex-col justify-between" style="grid-column: span 3; min-height: 320px;">
+              <div class="chart-header">
+                <h3 class="chart-title">Browser Distribution</h3>
+              </div>
+              <div class="chart-container" style="height: 220px;">
+                <canvas id="chartBrowserUsage"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. LINK DETAILS PAGE VIEW -->
+        <div id="viewLinkDetails" class="view-container">
+          <div class="mb-4">
+            <a href="#/dashboard" class="btn btn-secondary btn-sm" style="padding: 6px 12px; gap: 4px;">
+              <span class="material-symbols-outlined" style="font-size: 1rem;">arrow_back</span>
+              <span>Back to Dashboard</span>
+            </a>
+          </div>
+
+          <div class="details-grid">
+            <!-- Left Side Info & QR -->
+            <div class="details-left">
+              <!-- QR Code Card -->
+              <div class="card qr-card">
+                <div class="qr-box" id="detailQrContainer">
+                  <!-- Will contain generated QR SVG -->
+                  <div class="qr-placeholder">
+                    <span class="material-symbols-outlined">qr_code_2</span>
+                    <span>Loading QR...</span>
+                  </div>
+                </div>
+                <h3 class="title-md mb-2">Short Link QR Code</h3>
+                <p class="label-sm text-muted mb-4">Download or print this QR code to route offline scans.</p>
+                <div class="flex flex-col gap-2" style="width: 100%;">
+                  <button type="button" class="btn btn-primary" id="btnDownloadQr" style="width: 100%;">Download QR Image</button>
+                  <button type="button" class="btn btn-secondary" id="btnSimulateTrafficDetail" style="width: 100%;">
+                    <span class="material-symbols-outlined" style="font-size: 1.15rem;">ads_click</span>
+                    <span>Simulate Click Traffic</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- URL Data List -->
+              <div class="card info-card">
+                <ul class="info-list">
+                  <li class="info-item">
+                    <span class="info-label">Destination URL</span>
+                    <span class="info-value text-muted" id="detailLongUrl" style="font-weight: normal;">https://example.com/long/path</span>
+                  </li>
+                  <li class="info-item">
+                    <span class="info-label">Short URL</span>
+                    <div class="flex items-center gap-2">
+                      <span class="info-value text-primary" id="detailShortUrl">shrt.lnk/alias</span>
+                      <button class="copy-icon-btn" id="btnDetailCopy" aria-label="Copy short link"><span class="material-symbols-outlined">content_copy</span></button>
+                    </div>
+                  </li>
+                  <li class="info-item">
+                    <span class="info-label">Creation Date</span>
+                    <span class="info-value" id="detailCreatedDate">Jan 1, 2026</span>
+                  </li>
+                  <li class="info-item">
+                    <span class="info-label">Expiry Date</span>
+                    <span class="info-value" id="detailExpiryDate">Never</span>
+                  </li>
+                  <li class="info-item">
+                    <span class="info-label">Password Required</span>
+                    <span class="info-value" id="detailPasswordStatus">No</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Right Side Traffic & Activity Timeline -->
+            <div class="flex flex-col gap-4">
+              <!-- Click Metric Card -->
+              <div class="card flex justify-between items-center" style="padding: 24px 32px;">
+                <div>
+                  <span class="info-label">Total Link Clicks</span>
+                  <div class="headline-md font-bold mt-1" id="detailClicksValue">0</div>
+                </div>
+                <div class="stat-card-icon" style="width: 54px; height: 54px; font-size: 1.75rem;">
+                  <span class="material-symbols-outlined">ads_click</span>
+                </div>
+              </div>
+
+              <!-- Activity Timeline Card -->
+              <div class="card timeline-card">
+                <h3 class="title-md mb-6">Recent Activity Timeline</h3>
+                
+                <ul class="timeline" id="detailActivityTimeline">
+                  <!-- Timeline items dynamically generated in JS -->
+                </ul>
+                
+                <div id="detailTimelineEmpty" class="empty-state" style="display: none; padding: 24px;">
+                  <div class="empty-state-icon" style="width: 44px; height: 44px; font-size: 1.5rem; margin-bottom: 12px;">
+                    <span class="material-symbols-outlined">timeline</span>
+                  </div>
+                  <h3>No activity recorded yet</h3>
+                  <p style="font-size: 0.8rem;">Traffic log will compile details as soon as visitors route through this link.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. SETTINGS PAGE VIEW -->
+        <div id="viewSettings" class="view-container">
+          <div class="settings-container">
+            
+            <!-- Profile Settings Card -->
+            <div class="card settings-section-card">
+              <div class="settings-section-header">
+                <h3 class="settings-section-title">Profile Settings</h3>
+                <p class="settings-section-desc">Manage your accounts primary user information.</p>
+              </div>
+              <form id="settingsProfileForm" class="auth-form">
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="form-group">
+                    <label for="settingsName" class="form-label">Full Name</label>
+                    <input type="text" id="settingsName" class="form-input" value="John Smith" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="settingsEmail" class="form-label">Email Address</label>
+                    <input type="email" id="settingsEmail" class="form-input" value="john.smith@example.com" required>
+                  </div>
+                </div>
+                <div class="form-buttons">
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Password settings Card -->
+            <div class="card settings-section-card">
+              <div class="settings-section-header">
+                <h3 class="settings-section-title">Change Password</h3>
+                <p class="settings-section-desc">Ensure your account is protected with a secure credential set.</p>
+              </div>
+              <form id="settingsPasswordForm" class="auth-form">
+                <div class="form-group">
+                  <label for="settingsOldPassword" class="form-label">Current Password</label>
+                  <input type="password" id="settingsOldPassword" class="form-input" placeholder="••••••••" required>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="form-group">
+                    <label for="settingsNewPassword" class="form-label">New Password</label>
+                    <input type="password" id="settingsNewPassword" class="form-input" placeholder="Min. 8 characters" required minlength="8">
+                  </div>
+                  <div class="form-group">
+                    <label for="settingsConfirmPassword" class="form-label">Confirm New Password</label>
+                    <input type="password" id="settingsConfirmPassword" class="form-input" placeholder="Re-enter new password" required minlength="8">
+                  </div>
+                </div>
+                <div class="form-buttons">
+                  <button type="submit" class="btn btn-primary">Update Password</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Notification preferences -->
+            <div class="card settings-section-card">
+              <div class="settings-section-header">
+                <h3 class="settings-section-title">Notification Preferences</h3>
+                <p class="settings-section-desc">Control what alerts and digests you receive on your email.</p>
+              </div>
+              <div class="settings-list">
+                <div class="settings-row">
+                  <div class="settings-row-label-area">
+                    <span class="settings-row-title">Weekly Link Performance Digest</span>
+                    <span class="settings-row-desc">Receive a comprehensive report of click statistics every Monday.</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" id="settingsNotifyDigest" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="settings-row">
+                  <div class="settings-row-label-area">
+                    <span class="settings-row-title">High Traffic Alerts</span>
+                    <span class="settings-row-desc">Email notifications when a link exceeds 1,000 clicks in a single day.</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" id="settingsNotifyTraffic">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Theme Preferences -->
+            <div class="card settings-section-card">
+              <div class="settings-section-header">
+                <h3 class="settings-section-title">Theme Settings</h3>
+                <p class="settings-section-desc">Select how the user interface displays on your device.</p>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-label-area">
+                  <span class="settings-row-title">Color Mode</span>
+                  <span class="settings-row-desc">Currently locked to light mode to ensure Lumina design system fidelity.</span>
+                </div>
+                <div class="theme-selector">
+                  <button type="button" class="theme-opt active" id="themeBtnLight">
+                    <span class="material-symbols-outlined" style="font-size: 1.15rem;">light_mode</span>
+                    <span>Light</span>
+                  </button>
+                  <button type="button" class="theme-opt" id="themeBtnDark" disabled style="opacity: 0.5; cursor: not-allowed;">
+                    <span class="material-symbols-outlined" style="font-size: 1.15rem;">dark_mode</span>
+                    <span>Dark</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+
+  <!-- Custom Logic Script -->
+  <script src="app.js"></script>
+</body>
+</html>
