@@ -163,8 +163,8 @@ function showToast(title, message, type = "success") {
   toast.innerHTML = `
     <span class="material-symbols-outlined toast-icon">${iconName}</span>
     <div class="toast-content">
-      <div class="toast-title">${title}</div>
-      <div class="toast-message">${message}</div>
+      <div class="toast-title">${LinkUtils.escapeHtml(title)}</div>
+      <div class="toast-message">${LinkUtils.escapeHtml(message)}</div>
     </div>
     <button class="toast-close" aria-label="Close Notification">
       <span class="material-symbols-outlined" style="font-size: 1.15rem;">close</span>
@@ -206,13 +206,9 @@ function formatDateOnly(isoString) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+// Cryptographically random, collision-checked short code (see link-utils.js)
 function generateShortCode() {
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "";
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
+  return LinkUtils.generateUniqueAlias(AppState.links);
 }
 
 // Simple text-to-SVG QR code mock (draws a realistic patterns QR code grid)
@@ -651,7 +647,11 @@ function renderDashboard() {
   document.getElementById("pageMainTitle").innerText = "Dashboard";
   const view = document.getElementById("viewDashboard");
   view.classList.add("active");
-  
+
+  // Expired links stop counting as active
+  if (LinkUtils.refreshExpiryStatus(AppState.links)) saveStateToStorage();
+  const esc = LinkUtils.escapeHtml;
+
   // Calculate stats
   const totalLinks = AppState.links.length;
   const totalClicks = AppState.links.reduce((sum, link) => sum + link.clicks, 0);
@@ -683,31 +683,31 @@ function renderDashboard() {
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>
-          <div class="original-url-cell" title="${link.longUrl}">${link.longUrl}</div>
+          <div class="original-url-cell" title="${esc(link.longUrl)}">${esc(link.longUrl)}</div>
         </td>
         <td>
           <div class="short-url-container">
-            <a href="${link.shortUrl}" target="_blank" class="short-url-cell">${link.shortUrl}</a>
-            <button class="copy-icon-btn btn-copy-link" data-url="${link.shortUrl}" title="Copy Link">
+            <a href="${esc(link.shortUrl)}" target="_blank" rel="noopener noreferrer" class="short-url-cell">${esc(link.shortUrl)}</a>
+            <button class="copy-icon-btn btn-copy-link" data-url="${esc(link.shortUrl)}" title="Copy Link">
               <span class="material-symbols-outlined">content_copy</span>
             </button>
           </div>
         </td>
         <td>
-          <span class="font-bold">${link.clicks}</span>
+          <span class="font-bold">${esc(link.clicks)}</span>
         </td>
         <td>
-          <span class="status-chip ${link.status}">${link.status}</span>
+          <span class="status-chip ${esc(link.status)}">${esc(link.status)}</span>
         </td>
         <td>
           <div class="action-buttons">
-            <button class="action-btn btn-details" data-id="${link.id}" title="View Details">
+            <button class="action-btn btn-details" data-id="${esc(link.id)}" title="View Details">
               <span class="material-symbols-outlined">insights</span>
             </button>
-            <button class="action-btn btn-edit" data-id="${link.id}" title="Edit Link">
+            <button class="action-btn btn-edit" data-id="${esc(link.id)}" title="Edit Link">
               <span class="material-symbols-outlined">edit</span>
             </button>
-            <button class="action-btn delete-btn btn-delete" data-id="${link.id}" title="Delete Link">
+            <button class="action-btn delete-btn btn-delete" data-id="${esc(link.id)}" title="Delete Link">
               <span class="material-symbols-outlined">delete</span>
             </button>
           </div>
@@ -741,11 +741,15 @@ function renderDashboard() {
         if (link) {
           const newAlias = prompt("Modify alias for link:", link.alias);
           if (newAlias !== null && newAlias.trim() !== "") {
-            const aliasClean = newAlias.trim().replace(/\s+/g, '-');
-            
-            // Check alias uniqueness
-            const dup = AppState.links.find(l => l.alias === aliasClean && l.id !== id);
-            if (dup) {
+            const check = LinkUtils.validateAlias(newAlias);
+            if (!check.ok) {
+              showToast("Validation Error", check.error, "error");
+              return;
+            }
+            const aliasClean = check.alias;
+
+            // Check alias uniqueness (case-insensitive)
+            if (LinkUtils.isAliasTaken(AppState.links, aliasClean, id)) {
               showToast("Validation Error", "This alias is already assigned to another link.", "error");
               return;
             }
@@ -892,11 +896,11 @@ function renderLinkDetailsPage() {
         <div class="timeline-content">
           <div class="timeline-event">
             <span class="timeline-title">Visitor Redirected</span>
-            <span class="timeline-desc">IP: ${click.ip} • Country: ${click.country}</span>
+            <span class="timeline-desc">IP: ${LinkUtils.escapeHtml(click.ip)} • Country: ${LinkUtils.escapeHtml(click.country)}</span>
           </div>
           <div class="timeline-meta">
-            <div>${formatDateTime(click.timestamp)}</div>
-            <div style="font-size: 0.7rem; opacity: 0.85;">${click.device} • ${click.browser}</div>
+            <div>${LinkUtils.escapeHtml(formatDateTime(click.timestamp))}</div>
+            <div style="font-size: 0.7rem; opacity: 0.85;">${LinkUtils.escapeHtml(click.device)} • ${LinkUtils.escapeHtml(click.browser)}</div>
           </div>
         </div>
       `;
@@ -948,16 +952,12 @@ function setupInteractionHandlers() {
   const quickUrlInput = document.getElementById("quickUrlInput");
   if (quickShortenBtn && quickUrlInput) {
     quickShortenBtn.addEventListener("click", () => {
-      const urlVal = quickUrlInput.value.trim();
-      if (!urlVal) {
-        showToast("Error", "Please input a valid destination URL.", "error");
+      const checked = LinkUtils.normalizeUrl(quickUrlInput.value);
+      if (!checked.ok) {
+        showToast("Invalid URL", checked.error, "error");
         return;
       }
-      
-      // Basic URL verification
-      if (!urlVal.startsWith("http://") && !urlVal.startsWith("https://")) {
-        showToast("Validation Warning", "Automatically prefixed with https://.", "warning");
-      }
+      const urlVal = checked.url;
 
       quickShortenBtn.innerText = "Processing...";
       quickShortenBtn.disabled = true;
@@ -970,7 +970,7 @@ function setupInteractionHandlers() {
         // Save to state as a new link (even for guest, so if they sign up/log in, it will show up!)
         const newLnk = {
           id: `lnk-${Math.random().toString(36).substr(2, 9)}`,
-          longUrl: urlVal.startsWith("http") ? urlVal : `https://${urlVal}`,
+          longUrl: urlVal,
           shortUrl: short,
           alias: alias,
           clicks: 0,
@@ -1073,29 +1073,38 @@ function setupInteractionHandlers() {
   if (createLinkForm) {
     createLinkForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      let longUrl = document.getElementById("createLongUrl").value.trim();
-      let alias = document.getElementById("createAlias").value.trim().replace(/\s+/g, '-');
-      const expiry = document.getElementById("createExpiry").value;
+      const urlCheck = LinkUtils.normalizeUrl(document.getElementById("createLongUrl").value);
+      if (!urlCheck.ok) {
+        showToast("Invalid URL", urlCheck.error, "error");
+        return;
+      }
+      const longUrl = urlCheck.url;
+
+      const expiryCheck = LinkUtils.validateExpiry(document.getElementById("createExpiry").value);
+      if (!expiryCheck.ok) {
+        showToast("Invalid Expiry", expiryCheck.error, "error");
+        return;
+      }
+      const expiry = expiryCheck.expiry;
       const enablePassword = document.getElementById("createPasswordToggle").checked;
       const password = enablePassword ? document.getElementById("createPassword").value : "";
 
-      if (!longUrl) {
-        showToast("Error", "Destination URL is required.", "error");
-        return;
-      }
-
-      if (!longUrl.startsWith("http://") && !longUrl.startsWith("https://")) {
-        longUrl = "https://" + longUrl;
-      }
-
-      // Generate alias if empty
-      if (!alias) {
+      // Validate a custom alias, or generate a unique one
+      let alias;
+      const rawAlias = document.getElementById("createAlias").value.trim();
+      if (rawAlias) {
+        const aliasCheck = LinkUtils.validateAlias(rawAlias);
+        if (!aliasCheck.ok) {
+          showToast("Invalid Alias", aliasCheck.error, "error");
+          return;
+        }
+        alias = aliasCheck.alias;
+      } else {
         alias = generateShortCode();
       }
 
-      // Check unique alias duplication
-      const duplicate = AppState.links.find(l => l.alias === alias);
-      if (duplicate) {
+      // Check unique alias duplication (case-insensitive)
+      if (LinkUtils.isAliasTaken(AppState.links, alias)) {
         showToast("Duplicate Error", "Custom alias is already in use. Please select a unique path.", "error");
         return;
       }
